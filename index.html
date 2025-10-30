@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>R1 Dual Streamer</title>
+    <style>
+        /* Base Reset and Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; 
+            background-color: #000;
+        }
+
+        .visual-viewport {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Container for each stream */
+        .stream-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none; 
+            overflow: hidden; /* This is crucial to clip the oversized FTV iframe */
+            background-color: #000; /* Ensures any exposed area is black */
+        }
+        
+        /* Initial View: Real Punk Radio is visible on launch */
+        #rpr-container {
+            display: block; 
+        }
+
+        /* --- Real Punk Radio iFrame (Standard) --- */
+        #rpr-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #000;
+            transform: scale(1.02); /* Clean scaling */
+        }
+
+        /* --- FashionTV iFrame (THE HACK + VERTICAL OFFSET) --- */
+        #ftv-iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            
+            /* Force landscape aspect ratio */
+            width: 180vh; 
+            height: 100vh;
+            
+            /* * THE FIX:
+             * translate(-50%, -50%) centers it.
+             * translate(-50%, -55%) shifts it UP by 5% of its height.
+             * This will hide the top 5% of the player and (hopefully)
+             * reveal the bottom 5% where the controls are.
+            */
+            transform: translate(-50%, -55%);
+            
+            border: none;
+            background-color: #000;
+        }
+        
+        /* Button Container: Centered */
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        /* Style for the Control button */
+        .control-button {
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            background-color: rgba(34, 44, 55, 0.9); 
+            border: 2px solid #666;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="visual-viewport">
+        
+        <!-- 1. Real Punk Radio Player (Visual + Controls) -->
+        <div id="rpr-container" class="stream-container">
+            <iframe 
+                id="rpr-iframe" 
+                src="https://realpunkradio.com/player/player042124.html"
+                allow="autoplay">
+            </iframe>
+        </div>
+
+        <!-- 2. FashionTV Stream (Visual + Controls) - Now with vertical offset -->
+        <div id="ftv-container" class="stream-container">
+            <iframe 
+                id="ftv-iframe" 
+                src="https://www.fashiontv.com/watch/18717158"
+                allow="autoplay; fullscreen; picture-in-picture">
+            </iframe>
+        </div>
+        
+        <!-- Controls: Centered Visual button -->
+        <div class="controls">
+            <div id="visual-button" class="control-button">Visual</div>
+        </div>
+    </div>
+
+    <script>
+        const rprContainer = document.getElementById('rpr-container');
+        const ftvContainer = document.getElementById('ftv-container');
+        const visualButton = document.getElementById('visual-button');
+
+        // State Tracking
+        let currentVisual = 'rpr'; // 'rpr' or 'ftv'
+
+        function updateVisual() {
+            if (currentVisual === 'rpr') {
+                ftvContainer.style.display = 'none';
+                rprContainer.style.display = 'block';
+            } else {
+                rprContainer.style.display = 'none';
+                ftvContainer.style.display = 'block';
+            }
+        }
+        
+        visualButton.addEventListener('click', () => {
+            currentVisual = (currentVisual === 'rpr') ? 'ftv' : 'rpr';
+            updateVisual();
+        });
+
+        // Initial setup
+        updateVisual();
+    </script>
+</body>
+</html>
+
